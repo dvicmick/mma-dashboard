@@ -1,0 +1,24 @@
+@st.cache_data
+def fetch_fighter_data():
+    league_urls = {
+        "LFA": "https://www.tapology.com/fightcenter/promotions/41-legacy-fighting-alliance",
+        "Fury FC": "https://www.tapology.com/fightcenter/promotions/365-fury-fc",
+        "Lux": "https://www.tapology.com/fightcenter/promotions/393-lux-fight-league",
+        "Combate Global": "https://www.tapology.com/fightcenter/promotions/366-combate-global",
+        "Lights Out": "https://www.tapology.com/fightcenter/promotions/538-lights-out-xtreme-fighting"
+    }
+
+    all_fighters = []
+
+    for league_name, url in league_urls.items():
+        df = get_fighters_from_league(url, max_pages=1)
+        if not df.empty:
+            df['League'] = league_name
+            all_fighters.append(df)
+
+    if all_fighters:
+        result = pd.concat(all_fighters, ignore_index=True)
+        result = enrich_fighters_with_sentiment(result)
+        return result
+    else:
+        return pd.DataFrame()
